@@ -1,0 +1,40 @@
+# --- Terraform / OpenTofu ---
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# --- Ansible ---
+*.retry
+*.log
+.ansible/
+galaxy_roles/
+# Fichiers de variables contenant des secrets locaux
+ansible/vars/secrets.yml
+ansible/inventory/production.ini
+
+# --- Vagrant / Environnements de test ---
+.vagrant/
+
+# --- Clés SSH et certificats locaux ---
+*.pem
+*.key
+*.pub
+id_rsa*
+id_ed25519*
+
+# --- Clés d'API & Environnement ---
+.env
+.envrc
+
+# --- Fichiers système & Éditeurs ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
