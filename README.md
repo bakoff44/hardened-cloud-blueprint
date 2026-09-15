@@ -44,3 +44,36 @@ This repository contains fully automated **Terraform** and **Ansible** scripts d
 ```bash
 git clone [https://github.com/your-username/hardened-cloud-blueprint.git](https://github.com/your-username/hardened-cloud-blueprint.git)
 cd hardened-cloud-blueprint
+```
+
+### 2. Configure variables
+Copy the example configuration files and add your API keys:
+
+``` bash
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+cp ansible/vars/all.yml.example ansible/vars/all.yml
+```
+
+3. Deploy Infrastructure
+``` bash
+cd terraform
+terraform init
+terraform apply
+```
+
+### 4. Provision & Harden
+``` bash
+cd ../ansible
+ansible-playbook -i inventory.ini site.yml
+```
+
+🔒 Security Architecture
+```
+Internet ---> [ Firewall / CrowdSec ] ---> [ Traefik (HTTPS) ] ---> [ k3s / Apps ]
+                                                                       |
+                                                               (Nightly Restic)
+                                                                       v
+                                                               [ S3 Bucket Storage ]
+```
+### 📄 License
+Distributed under the MIT License. See LICENSE for more information.
