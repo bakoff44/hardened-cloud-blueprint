@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: hardened-cloud-blueprint
+  description: Paquets de base, fuseau horaire et mises a jour automatiques.
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - hardening
+    - security
+dependencies: []

@@ -1,0 +1,14 @@
+---
+profile: production
+
+exclude_paths:
+  - .ansible/
+
+skip_list:
+  # Quatre variables forment le contrat partage entre les roles : ssh_port sert
+  # au pare-feu, a sshd et a fail2ban ; admin_user / admin_ssh_key servent a la
+  # creation du compte comme a la directive AllowUsers ; timezone est global.
+  # Les prefixer par role obligerait a les recopier d'un role a l'autre depuis
+  # le playbook, pour un gain nul. Les variables reellement internes a un role,
+  # elles, sont bien prefixees (ssh_hardening_*, fail2ban_*, common_*...).
+  - var-naming[no-role-prefix]

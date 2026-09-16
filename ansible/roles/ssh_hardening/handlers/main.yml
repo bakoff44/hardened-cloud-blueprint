@@ -1,0 +1,6 @@
+---
+- name: Redemarrer SSH
+  ansible.builtin.systemd_service:
+    name: "{{ 'ssh.socket' if ssh_hardening_socket_state.rc | default(1) == 0 else 'ssh' }}"
+    state: restarted
+    daemon_reload: true

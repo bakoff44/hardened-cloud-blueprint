@@ -1,0 +1,31 @@
+---
+- name: Installer Fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+
+- name: Configurer la prison SSH
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      # Gere par Ansible — ne pas editer a la main.
+      [DEFAULT]
+      # Ubuntu 24.04 n'ecrit plus /var/log/auth.log : on lit le journal systemd.
+      backend = systemd
+      bantime = {{ fail2ban_bantime }}
+      findtime = {{ fail2ban_findtime }}
+      maxretry = {{ fail2ban_maxretry }}
+
+      [sshd]
+      enabled = true
+      port = {{ ssh_port }}
+  notify: Redemarrer Fail2ban
+
+- name: Activer Fail2ban au demarrage
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true

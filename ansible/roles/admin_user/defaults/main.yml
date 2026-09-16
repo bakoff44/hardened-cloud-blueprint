@@ -1,0 +1,5 @@
+---
+admin_user: deploy
+# Obligatoire : aucune valeur par defaut possible sans risquer de couper l'acces.
+admin_ssh_key: ""
+admin_user_sudo_nopasswd: true

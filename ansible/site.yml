@@ -1,0 +1,11 @@
+---
+# Point d'entree unique.
+#
+#   ansible-galaxy collection install -r requirements.yml
+#   ansible-playbook -i inventory/local.ini site.yml
+#
+# Chaque brique reste jouable seule :
+#   ansible-playbook -i inventory/local.ini playbooks/hardening.yml --tags ssh
+
+- name: Durcissement du socle
+  ansible.builtin.import_playbook: playbooks/hardening.yml

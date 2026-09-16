@@ -1,0 +1,28 @@
+---
+# Ce role passe avant ssh_hardening : le nouveau port doit etre ouvert avant
+# que sshd ne s'y deplace, faute de quoi on se coupe l'acces a la machine.
+
+- name: Installer UFW
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: Autoriser le port SSH courant et le futur port SSH
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ [ssh_port, ansible_port | default(22)] | unique }}"
+
+- name: Autoriser les ports applicatifs
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ firewall_allowed_tcp_ports }}"
+
+- name: Bloquer le trafic entrant par defaut et activer UFW
+  community.general.ufw:
+    state: enabled
+    policy: deny
+    direction: incoming

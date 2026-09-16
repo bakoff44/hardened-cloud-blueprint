@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: hardened-cloud-blueprint
+  description: Durcissement du serveur SSH.
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - hardening
+    - security
+dependencies: []

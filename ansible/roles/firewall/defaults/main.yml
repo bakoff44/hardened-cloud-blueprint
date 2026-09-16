@@ -1,0 +1,5 @@
+---
+ssh_port: 2222
+firewall_allowed_tcp_ports:
+  - 80
+  - 443

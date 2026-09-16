@@ -1,0 +1,19 @@
+---
+# Variables partagees par plusieurs roles. Les valeurs propres a un seul role
+# vivent dans roles/<role>/defaults/main.yml.
+#
+# Rien de sensible ici : ce fichier est versionne. Les secrets vont dans
+# vars/secrets.yml (ignore par git) ou dans un coffre ansible-vault.
+
+# Compte d'administration cree puis seul autorise en SSH.
+admin_user: deploy
+
+# Port d'ecoute SSH apres durcissement.
+ssh_port: 2222
+
+# Ports applicatifs ouverts en entree, en plus de ssh_port.
+firewall_allowed_tcp_ports:
+  - 80
+  - 443
+
+timezone: Etc/UTC

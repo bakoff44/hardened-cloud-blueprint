@@ -15,6 +15,7 @@
 galaxy_roles/
 # Fichiers de variables contenant des secrets locaux
 ansible/vars/secrets.yml
+ansible/vars/all.yml
 ansible/inventory/production.ini
 
 # --- Vagrant / Environnements de test ---

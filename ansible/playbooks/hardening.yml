@@ -1,0 +1,36 @@
+---
+# Socle de durcissement. L'ordre des roles n'est pas interchangeable :
+# firewall ouvre le nouveau port SSH avant que ssh_hardening n'y deplace sshd.
+#
+#   ansible-playbook -i inventory/local.ini playbooks/hardening.yml -e @vars/all.yml
+#   ansible-playbook -i inventory/local.ini playbooks/hardening.yml --tags ssh
+
+- name: Durcissement de base des noeuds
+  hosts: all
+  become: true
+
+  pre_tasks:
+    - name: Verifier qu'une cle publique a bien ete fournie
+      ansible.builtin.assert:
+        that:
+          - admin_ssh_key is defined
+          - admin_ssh_key | length > 0
+        fail_msg: >-
+          admin_ssh_key est vide : le playbook desactiverait l'authentification
+          par mot de passe sans laisser aucun moyen de se reconnecter.
+          Renseignez-la dans vars/all.yml (voir vars/all.yml.example).
+      tags: always
+
+  roles:
+    - role: common
+      tags: [base, common]
+    - role: admin_user
+      tags: [base, users]
+    - role: firewall
+      tags: [firewall]
+    - role: ssh_hardening
+      tags: [ssh]
+    - role: fail2ban
+      tags: [fail2ban]
+    - role: kernel_hardening
+      tags: [sysctl]

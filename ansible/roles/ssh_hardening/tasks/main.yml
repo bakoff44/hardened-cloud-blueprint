@@ -1,0 +1,55 @@
+---
+- name: Deposer la configuration SSH durcie
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/99-hardening.conf
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/sbin/sshd -t -f %s
+    content: |
+      # Gere par Ansible — ne pas editer a la main.
+      Port {{ ssh_port }}
+      PermitRootLogin {{ ssh_hardening_permit_root_login }}
+      PasswordAuthentication {{ ssh_hardening_password_authentication }}
+      KbdInteractiveAuthentication no
+      PubkeyAuthentication yes
+      AllowUsers {{ admin_user }}
+      X11Forwarding no
+      MaxAuthTries {{ ssh_hardening_max_auth_tries }}
+      ClientAliveInterval {{ ssh_hardening_client_alive_interval }}
+      ClientAliveCountMax {{ ssh_hardening_client_alive_count_max }}
+  notify: Redemarrer SSH
+
+# Sous Ubuntu 24.04 sshd demarre par socket activation : la directive Port
+# ci-dessus reste sans effet tant que ssh.socket ecoute sur le 22.
+# `is-active` et non `cat` : sous 22.04 l'unite existe mais reste inactive,
+# et c'est alors ssh.service qu'il faut redemarrer.
+- name: Verifier si SSH est gere par socket activation
+  ansible.builtin.command: systemctl is-active ssh.socket  # noqa: command-instead-of-module
+  register: ssh_hardening_socket_state
+  changed_when: false
+  failed_when: false
+
+- name: Aligner le port d'ecoute de ssh.socket
+  when: ssh_hardening_socket_state.rc == 0
+  block:
+    - name: Creer le repertoire de surcharge de ssh.socket
+      ansible.builtin.file:
+        path: /etc/systemd/system/ssh.socket.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Surcharger le port d'ecoute de ssh.socket
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/ssh.socket.d/override.conf
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          # Gere par Ansible — ne pas editer a la main.
+          [Socket]
+          ListenStream=
+          ListenStream={{ ssh_port }}
+      notify: Redemarrer SSH

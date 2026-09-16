@@ -1,0 +1,11 @@
+---
+- name: Durcir les parametres du noyau
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/99-hardening.conf
+    sysctl_set: true
+    reload: true
+  loop: "{{ kernel_hardening_sysctl }}"
+  loop_control:
+    label: "{{ item.name }}"

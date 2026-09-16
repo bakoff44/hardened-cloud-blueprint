@@ -1,0 +1,11 @@
+---
+common_packages:
+  - ca-certificates
+  - curl
+  - git
+  - gnupg
+  - htop
+  - rsync
+  - unattended-upgrades
+
+timezone: Etc/UTC

@@ -1,0 +1,11 @@
+; Copier en inventory/production.ini (ignore par git) et renseigner les IP
+; produites par Terraform.
+
+[cluster]
+node-01 ansible_host=203.0.113.10
+; node-02 ansible_host=203.0.113.11
+
+[cluster:vars]
+ansible_user=deploy
+ansible_port=2222
+ansible_ssh_private_key_file=~/.ssh/id_ed25519
