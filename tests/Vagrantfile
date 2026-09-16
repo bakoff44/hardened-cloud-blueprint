@@ -1,0 +1,60 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+NODE_IP   = "192.168.56.10"
+NODE_CIDR = "#{NODE_IP}/24"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-24.04"
+  config.vm.box_check_update = false
+  config.vm.hostname = "local-lab-node"
+
+  # Desactivation du dossier partage (evite l'erreur DrvFs/WSL)
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # Creation de l'interface reseau sans auto-configuration par Vagrant
+  config.vm.network "private_network", ip: NODE_IP, auto_config: false
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.name   = "hardened-cloud-blueprint-test"
+    vb.memory = 2048
+    vb.cpus   = 2
+    # Desactive le port serie pour eviter les erreurs VBoxManage sous Windows/WSL
+    vb.customize ["modifyvm", :id, "--uart1", "off"]
+  end
+
+  # Attribution de l'IP fixe via Netplan et installation des prerequis Ansible
+  config.vm.provision "shell", privileged: true, inline: <<~SHELL
+    set -euo pipefail
+
+    # Identifie l'interface du reseau prive : la seule carte physique
+    # qui ne porte pas la route par defaut (celle du NAT Vagrant).
+    default_iface="$(ip -4 route show default | awk '{print $5}' | head -n1 || true)"
+    lab_iface="$(ip -o link show | awk -F': ' '{print $2}' | grep -E '^(en|eth)' | grep -vx "${default_iface}" | head -n1 || true)"
+
+    if [ -z "${lab_iface}" ]; then
+      echo "Interface du reseau prive introuvable" >&2
+      exit 1
+    fi
+    echo "Configuration de ${lab_iface} en #{NODE_CIDR}"
+
+    cat > /etc/netplan/99-custom.yaml <<EOF
+    network:
+      version: 2
+      renderer: networkd
+      ethernets:
+        ${lab_iface}:
+          dhcp4: false
+          addresses:
+            - #{NODE_CIDR}
+    EOF
+
+    # Netplan >= 0.106 refuse les fichiers de conf lisibles par tous
+    chmod 600 /etc/netplan/99-custom.yaml
+    netplan apply
+
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -y --no-install-recommends python3 python3-apt curl git ca-certificates
+  SHELL
+end
